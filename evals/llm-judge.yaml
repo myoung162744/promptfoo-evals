@@ -1,0 +1,30 @@
+# LLM-as-Judge Evaluations
+# Semantic quality checks using model grading
+
+- type: model-graded-closedqa
+  value: "Is the output high quality and appropriate for the given task?"
+  threshold: 0.8
+  description: "Overall quality check - output should be high quality"
+
+- type: model-graded-closedqa
+  value: "Does the output follow the instructions provided in the prompt?"
+  threshold: 0.9
+  description: "Instruction following - output should follow prompt instructions"
+
+- type: model-graded-closedqa
+  value: "Is the output free from hallucinations and factually grounded in the input?"
+  threshold: 0.85
+  description: "Factual accuracy - output should be grounded in the input"
+
+- type: llm-rubric
+  value: |
+    You are evaluating the quality of an AI assistant's response. Rate the response on the following criteria:
+    
+    1. Relevance (0-4): Is the response relevant to the input and task?
+    2. Completeness (0-3): Does the response fully address what was asked?
+    3. Clarity (0-3): Is the response clear and easy to understand?
+    
+    Provide a score from 0-10 based on these criteria. A score of 8 or higher passes.
+  threshold: 0.8
+  description: "Multi-criteria quality rubric evaluation"
+

@@ -1,0 +1,33 @@
+# Summarization Test Cases
+# Each test case defines variables to inject into the summarization prompt
+
+- description: "Brief technical article summary"
+  vars:
+    summaryLength: "brief"
+    tone: "professional"
+    inputText: "Machine learning is a subset of artificial intelligence that enables computers to learn from data without being explicitly programmed. It uses algorithms to identify patterns in data and make predictions or decisions. Common applications include image recognition, natural language processing, and recommendation systems. The field has grown rapidly due to increased computing power and availability of large datasets."
+
+- description: "Detailed news article summary"
+  vars:
+    summaryLength: "detailed"
+    tone: "neutral"
+    inputText: "Climate scientists have reported that global temperatures continue to rise, with the past decade being the warmest on record. The effects are visible worldwide, from melting ice caps to more frequent extreme weather events. Governments are meeting to discuss carbon emission reduction strategies, while renewable energy adoption is accelerating. However, experts warn that current efforts may not be sufficient to prevent significant climate change impacts in the coming decades."
+
+- description: "Concise product review summary"
+  vars:
+    summaryLength: "concise"
+    tone: "casual"
+    inputText: "I've been using this laptop for three months now, and I'm really impressed. The battery life is excellent - I can get through a full workday without charging. The keyboard is comfortable for long typing sessions, and the screen is bright and sharp. My only complaint is that it can get a bit warm when running intensive applications, but overall it's a great device for the price."
+
+- description: "Brief business report summary"
+  vars:
+    summaryLength: "brief"
+    tone: "professional"
+    inputText: "Our quarterly results show strong performance across all divisions. Revenue increased by 15% compared to the same quarter last year, driven primarily by growth in our digital services segment. Operating expenses remained stable, resulting in improved profit margins. The sales team exceeded their targets, and customer satisfaction scores reached an all-time high. We're on track to meet our annual projections."
+
+- description: "Detailed research findings summary"
+  vars:
+    summaryLength: "detailed"
+    tone: "academic"
+    inputText: "This study investigated the effects of sleep deprivation on cognitive performance in adults aged 25-40. Participants were divided into three groups: normal sleep (7-9 hours), moderate restriction (5-6 hours), and severe restriction (3-4 hours). Results showed significant decline in attention, working memory, and decision-making abilities in the restricted sleep groups. The effects were dose-dependent, with greater impairment in the severe restriction group. Recovery to baseline performance required 2-3 nights of normal sleep duration."
+

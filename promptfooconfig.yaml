@@ -1,0 +1,59 @@
+# Promptfoo Evaluation Configuration
+# Modular structure with reusable prompts, test inputs, and evals
+
+# =============================================================================
+# PROVIDERS - Keep provider configuration inline
+# =============================================================================
+providers:
+  # Uncomment the provider you want to use:
+  - openai:gpt-4o-mini
+  # - openai:gpt-4
+  # - anthropic:claude-3-5-sonnet-20241022
+  # - google:gemini-pro
+  # Add your API keys in environment variables or .env file
+
+# =============================================================================
+# PROMPTS - Include all prompts from both use cases
+# =============================================================================
+prompts:
+  - file://prompts/translation.txt
+  - file://prompts/summarization.txt
+
+# =============================================================================
+# TEST CASES - Include all test cases
+# =============================================================================
+tests:
+  # Translation test cases (7 tests)
+  - file://test-inputs/translation.yaml
+  # Summarization test cases (5 tests)
+  - file://test-inputs/summarization.yaml
+
+# =============================================================================
+# DEFAULT TEST OPTIONS & ASSERTIONS
+# =============================================================================
+defaultTest:
+  options:
+    temperature: 0.7
+    max_tokens: 500
+  assert:
+    # Shared language quality checks
+    - file://evals/language-checks.yaml
+    # Shared LLM-as-judge evaluations
+    - file://evals/llm-judge.yaml
+
+# =============================================================================
+# HOW TO ADD A NEW USE CASE:
+# =============================================================================
+# 1. Create a new prompt file in prompts/ (e.g., prompts/my-usecase.txt)
+# 2. Create a new test inputs file in test-inputs/ (e.g., test-inputs/my-usecase.yaml)
+# 3. Add a new section above with:
+#    - description: "My Use Case"
+#      prompts:
+#        - file://prompts/my-usecase.txt
+#      tests:
+#        - file://test-inputs/my-usecase.yaml
+#      defaultTest:
+#        assert:
+#          - file://evals/language-checks.yaml  # Reuse existing evals
+#          - file://evals/llm-judge.yaml         # Or add custom ones
+# 4. Optionally create new eval files in evals/ if needed

@@ -1,0 +1,6 @@
+You are a helpful assistant. Translate the following text from {{inputLanguage}} to {{outputLanguage}}:
+
+{{inputText}}
+
+Provide only the translation, no additional commentary.
+

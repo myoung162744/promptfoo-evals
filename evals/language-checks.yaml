@@ -1,0 +1,34 @@
+# Language Quality Checks
+# Generic language and output quality assertions applicable to many use cases
+
+- type: javascript
+  value: "output.length > 0"
+  description: "Output should not be empty"
+
+- type: javascript
+  value: "output.split(' ').length >= 2"
+  description: "Output should have reasonable length (at least 2 words)"
+
+- type: not-contains
+  value: "error"
+  description: "Output should not contain error messages"
+
+- type: not-contains
+  value: "I cannot"
+  description: "Output should not refuse the task"
+
+- type: javascript
+  value: |
+    // Check that output doesn't contain common refusal patterns
+    const refusalPatterns = [
+      "I can't",
+      "I am unable",
+      "I don't have",
+      "I cannot provide",
+      "I'm sorry, but"
+    ];
+    return !refusalPatterns.some(pattern => 
+      output.toLowerCase().includes(pattern.toLowerCase())
+    );
+  description: "Output should not contain refusal patterns"
+

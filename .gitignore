@@ -1,0 +1,22 @@
+# Promptfoo outputs
+promptfoo-results.json
+promptfoo-report.html
+output/
+.promptfoo/
+
+# Environment variables
+.env
+.env.local
+
+# Node modules (if using local install)
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo

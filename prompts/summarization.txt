@@ -1,0 +1,6 @@
+You are a skilled summarization assistant. Please summarize the following text in {{summaryLength}} style:
+
+{{inputText}}
+
+Focus on the key points and main ideas. Make the summary {{tone}} in tone.
+

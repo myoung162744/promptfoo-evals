@@ -1,0 +1,21 @@
+# Translation Quality Evaluations
+# Translation-specific assertions to check translation accuracy
+
+- type: javascript
+  value: "output.length > 0"
+  description: "Output should not be empty"
+
+- type: not-contains
+  value: "{{inputLanguage}}"
+  description: "Output should not contain the input language name"
+
+- type: javascript
+  value: |
+    // Check that output is different from input (actual translation occurred)
+    return output.toLowerCase() !== context.vars.inputText.toLowerCase();
+  description: "Output should be different from input (actual translation occurred)"
+
+- type: cost
+  threshold: 0.01
+  description: "Cost should be reasonable (less than $0.01 per translation)"
+

@@ -1,0 +1,45 @@
+# Translation Test Cases
+# Each test case defines variables to inject into the translation prompt
+
+- description: "Basic greeting - English to French"
+  vars:
+    inputLanguage: English
+    outputLanguage: French
+    inputText: "Hello, how are you?"
+
+- description: "Morning greeting - English to Spanish"
+  vars:
+    inputLanguage: English
+    outputLanguage: Spanish
+    inputText: "Good morning, have a nice day!"
+
+- description: "Common phrase - English to German"
+  vars:
+    inputLanguage: English
+    outputLanguage: German
+    inputText: "The quick brown fox jumps over the lazy dog."
+
+- description: "Technical content - English to French"
+  vars:
+    inputLanguage: English
+    outputLanguage: French
+    inputText: "I love programming and building software."
+
+- description: "Polite request - English to Japanese"
+  vars:
+    inputLanguage: English
+    outputLanguage: Japanese
+    inputText: "Could you please help me with this?"
+
+- description: "Long sentence - English to Spanish"
+  vars:
+    inputLanguage: English
+    outputLanguage: Spanish
+    inputText: "The weather today is beautiful, and I think we should go for a walk in the park."
+
+- description: "Business context - English to German"
+  vars:
+    inputLanguage: English
+    outputLanguage: German
+    inputText: "Thank you for your email. I will review the proposal and get back to you by Friday."
+
