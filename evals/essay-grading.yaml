@@ -1,0 +1,79 @@
+# Essay grading specific assertions
+# Combines score accuracy checks with reasoning quality evaluation
+
+# Check if overall score matches human score within ±1 point tolerance
+- type: javascript
+  value: |
+    const modelScore = parseInt(output.match(/Overall Score:\s*(\d+)/)?.[1] || 0);
+    const humanScore = context.vars.human_score;
+    const diff = Math.abs(modelScore - humanScore);
+
+    if (diff === 0) return { pass: true, score: 1.0, reason: `Perfect match: ${modelScore} = ${humanScore}` };
+    if (diff === 1) return { pass: true, score: 0.8, reason: `Close match: ${modelScore} vs ${humanScore} (±1)` };
+    return { pass: false, score: 0, reason: `Score mismatch: ${modelScore} vs ${humanScore} (diff: ${diff})` };
+
+# Check if Content score is reasonable (within ±1 of human score)
+- type: javascript
+  value: |
+    const modelScore = parseInt(output.match(/Content:\s*(\d+)/)?.[1] || 0);
+    const humanScore = context.vars.human_content_score;
+    const diff = Math.abs(modelScore - humanScore);
+    return diff <= 1 ? { pass: true, score: 1.0, reason: `Content score within range: ${modelScore} vs ${humanScore}` } : { pass: false, score: 0, reason: `Content score off: ${modelScore} vs ${humanScore}` };
+
+# Check if Organization score is reasonable (within ±1 of human score)
+- type: javascript
+  value: |
+    const modelScore = parseInt(output.match(/Organization:\s*(\d+)/)?.[1] || 0);
+    const humanScore = context.vars.human_organization_score;
+    const diff = Math.abs(modelScore - humanScore);
+    return diff <= 1 ? { pass: true, score: 1.0, reason: `Organization score within range: ${modelScore} vs ${humanScore}` } : { pass: false, score: 0, reason: `Organization score off: ${modelScore} vs ${humanScore}` };
+
+# Check if Word Choice score is reasonable (within ±1 of human score)
+- type: javascript
+  value: |
+    const modelScore = parseInt(output.match(/Word Choice:\s*(\d+)/)?.[1] || 0);
+    const humanScore = context.vars.human_word_choice_score;
+    const diff = Math.abs(modelScore - humanScore);
+    return diff <= 1 ? { pass: true, score: 1.0, reason: `Word choice score within range: ${modelScore} vs ${humanScore}` } : { pass: false, score: 0, reason: `Word choice score off: ${modelScore} vs ${humanScore}` };
+
+# Check if Conventions score is reasonable (within ±1 of human score)
+- type: javascript
+  value: |
+    const modelScore = parseInt(output.match(/Conventions:\s*(\d+)/)?.[1] || 0);
+    const humanScore = context.vars.human_conventions_score;
+    const diff = Math.abs(modelScore - humanScore);
+    return diff <= 1 ? { pass: true, score: 1.0, reason: `Conventions score within range: ${modelScore} vs ${humanScore}` } : { pass: false, score: 0, reason: `Conventions score off: ${modelScore} vs ${humanScore}` };
+
+# LLM judge evaluates the quality of reasoning and feedback
+- type: llm-rubric
+  value: |
+    The grader provided clear justification tied to specific rubric criteria for each dimension.
+    The feedback cites specific evidence from the student essay to support each score.
+    The scores are internally consistent (e.g., high content but appropriate organization).
+    The constructive feedback is actionable and would help the student improve.
+    The overall assessment is fair and defensible based on the reasoning given.
+  provider: openai:gpt-4o
+
+# Verify all required sections are present
+- type: javascript
+  value: |
+    const hasContent = /Content:\s*\d+/.test(output);
+    const hasOrganization = /Organization:\s*\d+/.test(output);
+    const hasWordChoice = /Word Choice:\s*\d+/.test(output);
+    const hasConventions = /Conventions:\s*\d+/.test(output);
+    const hasOverallScore = /Overall Score:\s*\d+/.test(output);
+    const hasFeedback = /Feedback:/.test(output);
+
+    const allPresent = hasContent && hasOrganization && hasWordChoice && hasConventions && hasOverallScore && hasFeedback;
+
+    if (allPresent) return { pass: true, score: 1.0, reason: 'All required sections present' };
+
+    const missing = [];
+    if (!hasContent) missing.push('Content');
+    if (!hasOrganization) missing.push('Organization');
+    if (!hasWordChoice) missing.push('Word Choice');
+    if (!hasConventions) missing.push('Conventions');
+    if (!hasOverallScore) missing.push('Overall Score');
+    if (!hasFeedback) missing.push('Feedback');
+
+    return { pass: false, score: 0, reason: `Missing sections: ${missing.join(', ')}` };

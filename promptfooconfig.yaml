@@ -1,32 +1,28 @@
-# Promptfoo Evaluation Configuration
-# Modular structure with reusable prompts, test inputs, and evals
+# Essay Grading Evaluation Configuration
+# Evaluates how well models grade essays according to a rubric
 
 # =============================================================================
-# PROVIDERS - Keep provider configuration inline
+# PROVIDERS - Compare multiple models
 # =============================================================================
 providers:
-  # Uncomment the provider you want to use:
+  # Multiple providers for comparing essay grading performance
   - openai:gpt-4o-mini
-  # - openai:gpt-4
-  # - anthropic:claude-3-5-sonnet-20241022
-  # - google:gemini-pro
+  - openai:gpt-4o
+  - anthropic:messages:claude-sonnet-4-20250514
   # Add your API keys in environment variables or .env file
 
 # =============================================================================
-# PROMPTS - Include all prompts from both use cases
+# PROMPTS
 # =============================================================================
 prompts:
-  - file://prompts/translation.txt
-  - file://prompts/summarization.txt
+  - file://prompts/essay_grader.txt
 
 # =============================================================================
-# TEST CASES - Include all test cases
+# TEST CASES
 # =============================================================================
 tests:
-  # Translation test cases (7 tests)
-  - file://test-inputs/translation.yaml
-  # Summarization test cases (5 tests)
-  - file://test-inputs/summarization.yaml
+  # Essay grading test cases (5 sample essays)
+  - file://test-inputs/essays.yaml
 
 # =============================================================================
 # DEFAULT TEST OPTIONS & ASSERTIONS
@@ -34,26 +30,7 @@ tests:
 defaultTest:
   options:
     temperature: 0.7
-    max_tokens: 500
+    max_tokens: 1000
   assert:
-    # Shared language quality checks
-    - file://evals/language-checks.yaml
-    # Shared LLM-as-judge evaluations
-    - file://evals/llm-judge.yaml
-
-# =============================================================================
-# HOW TO ADD A NEW USE CASE:
-# =============================================================================
-# 1. Create a new prompt file in prompts/ (e.g., prompts/my-usecase.txt)
-# 2. Create a new test inputs file in test-inputs/ (e.g., test-inputs/my-usecase.yaml)
-# 3. Add a new section above with:
-#    - description: "My Use Case"
-#      prompts:
-#        - file://prompts/my-usecase.txt
-#      tests:
-#        - file://test-inputs/my-usecase.yaml
-#      defaultTest:
-#        assert:
-#          - file://evals/language-checks.yaml  # Reuse existing evals
-#          - file://evals/llm-judge.yaml         # Or add custom ones
-# 4. Optionally create new eval files in evals/ if needed
+    # Essay grading specific evaluations
+    - file://evals/essay-grading.yaml

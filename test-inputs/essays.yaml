@@ -1,0 +1,118 @@
+# Essay grading test cases
+# Based on ASAP dataset format with attribute-specific scoring
+
+- description: "Grade 8 narrative essay - High quality"
+  vars:
+    essay_prompt: "Write about a time when patience was important to you."
+    rubric: |
+      Content (1-6): Does the essay address the prompt with relevant details and personal insight?
+      Organization (1-6): Is there a clear introduction, body, and conclusion with logical flow?
+      Word Choice (1-6): Are words precise, varied, and appropriate for the audience?
+      Conventions (1-6): Are spelling, grammar, and punctuation consistently correct?
+    essay: |
+      Patience is something I never thought I would need until last summer when I decided to teach my younger brother how to ride a bike. I thought it would be easy, but I was wrong.
+
+      Every day after school, we would go to the park with his small blue bicycle. At first, he was scared and didn't want to try. I had to encourage him gently, even when I felt frustrated. Day after day, he would fall, cry, and want to give up. I wanted to give up too, but I knew that would make him feel worse.
+
+      After two whole weeks of practice, something amazing happened. One afternoon, I let go of the bike seat without telling him, and he kept going! He was riding all by himself, laughing and shouting with joy. When he realized I wasn't holding on anymore, he was so proud of himself.
+
+      That experience taught me that patience isn't just about waiting. It's about staying calm and supportive even when things are hard. Now when something frustrates me, I remember those two weeks at the park and remind myself that good things take time. My brother still thanks me for not giving up on him, and that makes all the patience worth it.
+    human_score: 5
+    human_content_score: 5
+    human_organization_score: 5
+    human_word_choice_score: 4
+    human_conventions_score: 5
+
+- description: "Grade 7 persuasive essay - Medium quality"
+  vars:
+    essay_prompt: "Should students be required to wear school uniforms? Take a position and support it with reasons."
+    rubric: |
+      Content (1-6): Does the essay take a clear position and support it with relevant reasons?
+      Organization (1-6): Is there a clear introduction, body, and conclusion with logical flow?
+      Word Choice (1-6): Are words precise, varied, and appropriate for the audience?
+      Conventions (1-6): Are spelling, grammar, and punctuation consistently correct?
+    essay: |
+      I think students should not have to wear uniforms because it takes away our freedom to express ourselves. Uniforms are also expensive and not fair to all families.
+
+      First of all, clothes are a way we show our personality. If everyone wears the same thing, school becomes boring and we all look the same. In middle school, we are trying to figure out who we are, and clothes are part of that.
+
+      Second, uniforms cost a lot of money. Some families don't have much money and buying special school clothes is hard for them. Regular clothes can be worn other places too, but uniforms can only be worn at school.
+
+      Some people say uniforms stop bullying about clothes, but I don't think that's true. People will find other things to bully about like shoes or backpacks. Uniforms don't really solve the problem.
+
+      In conclusion, school uniforms should not be required. They take away our freedom and cost too much money. Students should be allowed to wear what they want as long as it's appropriate.
+    human_score: 4
+    human_content_score: 4
+    human_organization_score: 4
+    human_word_choice_score: 3
+    human_conventions_score: 4
+
+- description: "Grade 9 expository essay - Low-medium quality"
+  vars:
+    essay_prompt: "Explain the importance of setting goals."
+    rubric: |
+      Content (1-6): Does the essay explain the topic with relevant details and examples?
+      Organization (1-6): Is there a clear introduction, body, and conclusion with logical flow?
+      Word Choice (1-6): Are words precise, varied, and appropriate for the audience?
+      Conventions (1-6): Are spelling, grammar, and punctuation consistently correct?
+    essay: |
+      Setting goals is important for many reasons. Goals help you know what you want and how to get there. Without goals you might not accomplish much.
+
+      Goals give you direction. When you have a goal you know what to work toward. Like if you want to make the basketball team you need to practice everyday. The goal of making the team tells you what you should be doing.
+
+      Another reason goals are important is they help you stay motivated. Sometimes things get hard and you want to quit. But if you remember your goal, you can keep trying. Goals remind you why you started.
+
+      Also goals help you measure success. You can see if your getting closer to what you want. This feels good and keeps you going.
+
+      In conclusion goals are very important. They give direction, motivation, and help you measure success. Everyone should set goals if they want to achieve things in life.
+    human_score: 3
+    human_content_score: 3
+    human_organization_score: 3
+    human_word_choice_score: 2
+    human_conventions_score: 3
+
+- description: "Grade 10 source-dependent response - High quality"
+  vars:
+    essay_prompt: "Based on the article about social media's impact on teens, explain whether you think social media is more beneficial or harmful to young people."
+    rubric: |
+      Content (1-6): Does the essay reference the source material and develop a clear argument?
+      Organization (1-6): Is there a clear introduction, body, and conclusion with logical flow?
+      Word Choice (1-6): Are words precise, varied, and appropriate for the audience?
+      Conventions (1-6): Are spelling, grammar, and punctuation consistently correct?
+    essay: |
+      While social media offers connectivity and educational opportunities, the evidence suggests it is more harmful than beneficial to young people when considering its effects on mental health, sleep patterns, and authentic social development.
+
+      The article's most compelling point concerns mental health impacts. According to the research cited, teenagers who spend more than three hours daily on social media show significantly higher rates of anxiety and depression. This correlation isn't surprising when we consider the constant social comparison these platforms encourage. Every scroll exposes teens to curated highlight reels of others' lives, creating unrealistic expectations and feelings of inadequacy during an already vulnerable developmental period.
+
+      Furthermore, the disruption to healthy sleep patterns cannot be ignored. The article explains how late-night phone use interferes with circadian rhythms, and the blue light from screens suppresses melatonin production. Adolescents need 8-10 hours of sleep for proper brain development, yet many are sacrificing this for endless scrolling. The resulting sleep deprivation affects academic performance, emotional regulation, and physical health.
+
+      Proponents argue that social media helps teens stay connected with friends and access educational content. While these benefits exist, they don't outweigh the documented harms. Genuine connection requires more than likes and comments—it needs face-to-face interaction to develop empathy and authentic communication skills. As the article notes, heavy social media users actually report feeling more isolated despite having hundreds of online "friends."
+
+      The research presented in the article makes a convincing case that social media's negative impacts on adolescent mental health, sleep, and social development outweigh its benefits. Until teenagers develop the emotional maturity to use these platforms in moderation, parents and educators should encourage limited, intentional use rather than unrestricted access.
+    human_score: 6
+    human_content_score: 6
+    human_organization_score: 6
+    human_word_choice_score: 6
+    human_conventions_score: 6
+
+- description: "Grade 7 narrative essay - Low quality"
+  vars:
+    essay_prompt: "Describe an experience that changed your perspective on something."
+    rubric: |
+      Content (1-6): Does the essay address the prompt with relevant details and personal insight?
+      Organization (1-6): Is there a clear introduction, body, and conclusion with logical flow?
+      Word Choice (1-6): Are words precise, varied, and appropriate for the audience?
+      Conventions (1-6): Are spelling, grammar, and punctuation consistently correct?
+    essay: |
+      One time I changed my mind about something. It was about reading books. I used to hate reading but now I like it.
+
+      Before I thought books were boring. I liked video games better. Books had to many words and took to long. I never wanted to read.
+
+      Then my teacher made us read this book. It was actually pretty good. It had action and adventure in it. I started liking it and read more.
+
+      Now I read more books. There fun when you find good ones. I still like video games but books are cool to.
+    human_score: 2
+    human_content_score: 2
+    human_organization_score: 2
+    human_word_choice_score: 2
+    human_conventions_score: 2
