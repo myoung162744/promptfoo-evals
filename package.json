@@ -1,0 +1,24 @@
+{
+  "name": "promptfoo-evals",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/myoung162744/promptfoo-evals.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/myoung162744/promptfoo-evals/issues"
+  },
+  "homepage": "https://github.com/myoung162744/promptfoo-evals#readme",
+  "devDependencies": {
+    "promptfoo": "^0.121.15"
+  }
+}

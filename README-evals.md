@@ -1,325 +1,137 @@
-# Promptfoo Evaluation Framework
+# LLM Essay & Short-Answer Grading Evals
 
-A modular, scalable structure for creating and managing prompt evaluations with reusable components.
+Which LLMs grade student writing most like human raters? This repo evaluates
+models on four public datasets with real human scores, using
+[promptfoo](https://www.promptfoo.dev/) for execution and Quadratic Weighted
+Kappa (QWK) for ranking.
 
-## 📁 Project Structure
+## Datasets
 
-```
-promptfoo-evals/
-├── promptfooconfig.yaml          # Main configuration file
-├── prompts/                       # Prompt templates (one per use case)
-│   ├── translation.txt
-│   └── summarization.txt
-├── test-inputs/                   # Test scenarios (one-to-many per use case)
-│   ├── translation.yaml
-│   └── summarization.yaml
-├── evals/                         # Reusable evaluation assertions
-│   ├── translation-quality.yaml   # Translation-specific evals
-│   ├── language-checks.yaml       # Generic language quality checks
-│   └── llm-judge.yaml             # LLM-as-judge evaluations
-└── README-evals.md                # This file
-```
+| Config | Dataset | Task | Scale | Human labels |
+|---|---|---|---|---|
+| `configs/asap-essays.yaml` | [ASAP++](https://lwsam.github.io/ASAP++/lrec2018.html) (sets 1–2) | Persuasive essays, grades 7–10 | traits 1–6; overall 2–12 (set 1) / 1–6 (set 2) | overall + 5 traits (content, organization, word choice, sentence fluency, conventions) |
+| `configs/asap-sas.yaml` | [ASAP-SAS](https://www.kaggle.com/c/asap-sas) (sets 1, 2, 5, 6) | Short answers (science/biology) | 0–3 | overall |
+| `configs/persuade.yaml` | [PERSUADE 2.0 / ASAP 2.0](https://github.com/scrosseye/ASAP_2.0) | Source-based persuasive essays, grades 6–12 | 1–6 holistic | overall |
+| `configs/ellipse.yaml` | [ELLIPSE](https://github.com/scrosseye/ELLIPSE-Corpus) | English-language-learner essays | 1–5 in 0.5 steps | overall + 6 traits (cohesion, syntax, vocabulary, phraseology, grammar, conventions) |
 
-## 🚀 Quick Start
+All data is fetched from public GitHub/HuggingFace mirrors — **no Kaggle
+account needed**. ASAP-SAS comes via the [AERA paper repo](https://github.com/lijiazheng99/aera)
+(original answers, scores, and official question/rubric text).
 
-### Running Evaluations
+## Setup
 
 ```bash
-# Run all evaluations
-npx promptfoo@latest eval
+# one-time
+python3 -m venv .venv && .venv/bin/pip install pandas pyyaml numpy pypdf
+npm install                      # installs promptfoo locally
 
-# Run with web UI
-npx promptfoo@latest view
-
-# Run specific use case (if configured separately)
-npx promptfoo@latest eval -c promptfooconfig.yaml
+./scripts/download.sh            # fetch raw datasets (~80 MB)
+.venv/bin/python scripts/prepare.py --dataset all --n 50 --seed 42
 ```
 
-### Prerequisites
+API keys live in `.env` (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`).
 
-1. Install Node.js (v16 or later)
-2. Set up API keys as environment variables:
-   ```bash
-   export OPENAI_API_KEY=your-key-here
-   # or
-   export ANTHROPIC_API_KEY=your-key-here
-   ```
+> **Provider availability (verified 2026-06-12 on this machine's keys).** Some
+> planned providers are commented out in every `configs/*.yaml` because the
+> accounts can't reach them yet. Re-enable the commented `- id:` lines once
+> billing is sorted:
+> | Provider | Status | Why |
+> |---|---|---|
+> | Anthropic (opus 4.8, sonnet 4.6, haiku 4.5) | ✅ enabled | working |
+> | `google:gemini-2.5-flash` | ✅ enabled | works on free tier |
+> | `google:gemini-3-pro-preview` | ❌ commented out | Google key is free-tier; `limit: 0` for gemini-3-pro (needs paid AI Studio tier) |
+> | `openai:gpt-5.1`, `gpt-5.1-mini` | ❌ commented out | key returns `429 billing_not_active` |
+>
+> The `feedback_quality` judge is temporarily `google:gemini-2.5-flash` (the
+> only non-Anthropic model currently reachable). Once OpenAI billing is active,
+> switch it back to `openai:gpt-5.1` — a held-out judge avoids the
+> self-preference confound where a model rates its own family's output.
 
-## 📝 Adding a New Use Case
+## Running
 
-Follow these 4 steps to add a new use case:
+```bash
+# cheap pipeline sanity check (5 synthetic essays, 2 budget models)
+npx promptfoo eval --env-file .env -o output/synthetic.json
 
-### Step 1: Create a Prompt Template
+# real evals — one config per dataset
+npx promptfoo eval -c configs/asap-essays.yaml --env-file .env -o output/asap-essays.json
+npx promptfoo eval -c configs/asap-sas.yaml    --env-file .env -o output/asap-sas.json
+npx promptfoo eval -c configs/persuade.yaml    --env-file .env -o output/persuade.json
+npx promptfoo eval -c configs/ellipse.yaml     --env-file .env -o output/ellipse.json
 
-Create a new file in `prompts/` directory:
-
-**Example:** `prompts/sentiment-analysis.txt`
-```
-Analyze the sentiment of the following text and classify it as positive, negative, or neutral:
-
-{{inputText}}
-
-Provide your classification and a brief explanation.
-```
-
-### Step 2: Create Test Input Cases
-
-Create a new file in `test-inputs/` directory with multiple test scenarios:
-
-**Example:** `test-inputs/sentiment-analysis.yaml`
-```yaml
-# Sentiment Analysis Test Cases
-
-- description: "Positive review"
-  vars:
-    inputText: "This product is amazing! I absolutely love it."
-
-- description: "Negative review"
-  vars:
-    inputText: "Terrible experience. Would not recommend."
-
-- description: "Neutral statement"
-  vars:
-    inputText: "The product arrived on time and works as expected."
+npx promptfoo view                # browse transcripts side by side
 ```
 
-### Step 3: Reference in Main Config
+Reruns reuse the response cache, so a run interrupted by rate limits/503s can
+simply be run again to fill the gaps.
 
-Add a new section to `promptfooconfig.yaml`:
+## Ranking models
 
-```yaml
-- description: "Sentiment Analysis Use Case"
-  prompts:
-    - file://prompts/sentiment-analysis.txt
-  
-  tests:
-    - file://test-inputs/sentiment-analysis.yaml
-  
-  defaultTest:
-    assert:
-      # Reuse existing evals
-      - file://evals/language-checks.yaml
-      - file://evals/llm-judge.yaml
-      # Add custom assertions if needed
-      - type: contains-any
-        value: ["positive", "negative", "neutral"]
-        description: "Output should contain sentiment classification"
+Promptfoo pass-rates are per-assertion; the field-standard agreement metric is
+**QWK** (human–human QWK on ASAP is ~0.75 — that's the bar):
+
+```bash
+.venv/bin/python scripts/analyze.py output/asap-essays.json --traits
 ```
 
-### Step 4: (Optional) Create Custom Evals
+Reports per model: QWK, exact agreement, adjacent agreement (±1, or ±0.5 for
+ELLIPSE), **mean signed error** (positive = model grades more leniently than
+humans), Pearson r, and parse-failure rate. `--traits` adds per-trait QWK.
 
-If you need use-case-specific evaluations, create a new file in `evals/`:
+### What the in-run assertions measure
 
-**Example:** `evals/sentiment-checks.yaml`
-```yaml
-- type: contains-any
-  value: ["positive", "negative", "neutral"]
-  description: "Output should classify sentiment"
+| Metric | Meaning |
+|---|---|
+| `valid_json` | Output parsed as JSON with a numeric `overall` (format compliance) |
+| `exact_match` | Overall score equals the human score exactly (informational — expect misses) |
+| `adjacent_match` | Within tolerance of human score |
+| `traits_adjacent` | Fraction of trait scores within tolerance |
+| `feedback_quality` | LLM judge on evidence/feedback quality (secondary; judge has self-preference bias toward its own family) |
 
-- type: javascript
-  value: |
-    // Check that output contains an explanation
-    return output.length > 20;
-  description: "Output should include explanation"
+A test shows "failed" if *any* assertion fails, and `exact_match` misses often
+— that's the phenomenon being measured, not a pipeline error. Judge results
+and QWK are what rank models.
+
+## Scaling up
+
+The 50-case smoke test gives noisy QWK (±~0.1); rankings firm up at 150+.
+
+```bash
+.venv/bin/python scripts/prepare.py --dataset all --n 150 --seed 42
 ```
 
-Then reference it in your use case config:
-```yaml
-assert:
-  - file://evals/sentiment-checks.yaml
-  - file://evals/language-checks.yaml
+Sampling is stratified: even across essay sets/questions, round-robin across
+human score levels, so low/mid/high scores are all represented.
+
+## Interpretation caveats
+
+- **Contamination:** ASAP/ASAP-SAS are public since 2012 with published
+  scores; models may have partially memorized them. PERSUADE 2.0 (2022) and
+  ELLIPSE are newer. If a model does much better on ASAP than PERSUADE,
+  suspect contamination.
+- **Compare within a dataset, not across** — each has different human-rater
+  reliability and scales.
+- **ASAP anonymization tokens** (`@PERSON1`, `@LOCATION2`) are left in essays;
+  the grader prompt tells models not to penalize them.
+- **PERSUADE prompts:** only the two prompts with machine-readable source PDFs
+  are sampled (electoral college, car-free cities). The other five source PDFs
+  are scans; OCR them into `datasets/raw/asap2/source_txt/` and extend
+  `PERSUADE_SOURCES` in `scripts/prepare.py` to include them.
+- The stratified sample flattens the natural score distribution; QWK is still
+  comparable across models (all see identical cases) but don't quote it as
+  "accuracy on the dataset."
+
+## Layout
+
 ```
-
-## 🔧 Understanding the Structure
-
-### Prompts (`prompts/`)
-
-- **One file per use case**
-- Contains prompt template with variable placeholders: `{{variableName}}`
-- Variables are injected from test input files
-- Keep prompts focused and single-purpose
-
-### Test Inputs (`test-inputs/`)
-
-- **One file per use case, multiple test cases per file**
-- YAML format with array of test scenarios
-- Each test defines:
-  - `description`: What the test is checking
-  - `vars`: Variables to inject into the prompt template
-- Aim for 5-10 test cases to cover different scenarios
-
-### Evals (`evals/`)
-
-- **Grouped assertions by functionality**
-- Each file contains multiple related evaluation checks
-- Can be reused across multiple use cases
-- Common eval types:
-  - `contains` / `not-contains`: Check for specific text
-  - `javascript`: Custom logic with code
-  - `model-graded-closedqa`: LLM judges yes/no questions
-  - `llm-rubric`: LLM judges with detailed scoring criteria
-  - `cost`: Check cost thresholds
-
-## 📊 Example Use Cases
-
-### Translation
-
-**Prompt:** `prompts/translation.txt`
-- Translates text between languages
-- Variables: `inputLanguage`, `outputLanguage`, `inputText`
-
-**Test Inputs:** `test-inputs/translation.yaml`
-- 7 test cases covering different language pairs and text types
-
-**Evals:**
-- `translation-quality.yaml` - Translation-specific checks
-- `language-checks.yaml` - Generic quality checks (shared)
-- `llm-judge.yaml` - Semantic quality checks (shared)
-
-### Summarization
-
-**Prompt:** `prompts/summarization.txt`
-- Summarizes text with configurable length and tone
-- Variables: `summaryLength`, `tone`, `inputText`
-
-**Test Inputs:** `test-inputs/summarization.yaml`
-- 5 test cases covering different content types and summary styles
-
-**Evals:**
-- `language-checks.yaml` - Generic quality checks (reused)
-- `llm-judge.yaml` - Semantic quality checks (reused)
-- Custom inline assertion for length check
-
-## 🎯 Best Practices
-
-### 1. **Reuse Evals Across Use Cases**
-   - Create generic eval files like `language-checks.yaml`
-   - Reference them in multiple use cases
-   - Update once, apply everywhere
-
-### 2. **Keep Prompts Focused**
-   - One prompt per specific task
-   - Use clear variable names
-   - Document expected variable types
-
-### 3. **Comprehensive Test Coverage**
-   - Test edge cases and common scenarios
-   - Include both positive and negative cases
-   - Add descriptive names to each test
-
-### 4. **Mix Eval Types**
-   - Combine simple checks (contains, length) with semantic checks (LLM judge)
-   - Use cost checks to prevent expensive runs
-   - Use JavaScript for custom logic
-
-### 5. **Organize by Functionality**
-   - Group related evals in the same file
-   - Name files clearly (`translation-quality.yaml`, not `evals1.yaml`)
-   - Keep use-case-specific evals separate from shared ones
-
-## 🔍 Common Eval Patterns
-
-### Basic Output Quality
-```yaml
-- type: javascript
-  value: "output.length > 0"
-  description: "Output should not be empty"
+configs/               # one promptfoo config per dataset (edit provider list in all four)
+prompts/               # JSON-output grader prompts (essay + short answer)
+rubrics/               # extracted official rubric text (inlined into test cases)
+evals/                 # JS assertions (parse_output.js shared) — QWK lives in scripts/analyze.py
+scripts/download.sh    # raw data from no-auth mirrors
+scripts/prepare.py     # stratified sampling -> test-inputs/generated/*.yaml
+scripts/analyze.py     # QWK / agreement / bias tables from promptfoo -o JSON
+test-inputs/essays.yaml          # 5 synthetic essays (cheap sanity check)
+test-inputs/generated/           # generated test cases (reproducible; gitignored)
+datasets/raw/                    # downloads (gitignored)
 ```
-
-### Specific Content Check
-```yaml
-- type: contains
-  value: "expected phrase"
-  description: "Output should contain expected phrase"
-```
-
-### LLM-as-Judge
-```yaml
-- type: model-graded-closedqa
-  value: "Is the output accurate and relevant?"
-  threshold: 0.8
-  description: "Quality check using LLM judge"
-```
-
-### Custom JavaScript Logic
-```yaml
-- type: javascript
-  value: |
-    // Access output and context
-    const wordCount = output.split(' ').length;
-    const inputWordCount = context.vars.inputText.split(' ').length;
-    return wordCount < inputWordCount;
-  description: "Custom logic with full context"
-```
-
-### Cost Control
-```yaml
-- type: cost
-  threshold: 0.01
-  description: "Keep costs under control"
-```
-
-## 🛠️ Advanced Features
-
-### Multiple Prompts per Use Case
-
-You can test multiple prompt variations:
-
-```yaml
-- description: "A/B Test Use Case"
-  prompts:
-    - file://prompts/version-a.txt
-    - file://prompts/version-b.txt
-  tests:
-    - file://test-inputs/common-tests.yaml
-```
-
-### Provider-Specific Configuration
-
-Test different models for different use cases:
-
-```yaml
-- description: "Translation Use Case"
-  prompts:
-    - file://prompts/translation.txt
-  providers:
-    - openai:gpt-4  # Override default provider
-  tests:
-    - file://test-inputs/translation.yaml
-```
-
-### Test-Specific Overrides
-
-Override variables or add test-specific assertions:
-
-```yaml
-tests:
-  - file://test-inputs/translation.yaml
-  - vars:
-      inputLanguage: English
-      outputLanguage: Klingon
-    assert:
-      - type: contains
-        value: "tlhIngan"
-        description: "Should attempt Klingon translation"
-```
-
-## 📚 Resources
-
-- [Promptfoo Documentation](https://www.promptfoo.dev/docs/intro)
-- [Assertion Types](https://www.promptfoo.dev/docs/configuration/expected-outputs)
-- [LLM-as-Judge](https://www.promptfoo.dev/docs/configuration/expected-outputs/model-graded)
-- [JavaScript Assertions](https://www.promptfoo.dev/docs/configuration/expected-outputs/javascript)
-
-## 🤝 Contributing
-
-When adding new use cases or evals to this repository:
-
-1. Follow the naming conventions
-2. Add descriptive comments
-3. Update this README with your use case
-4. Test your configuration before committing
-
-## 📄 License
-
-[Your License Here]

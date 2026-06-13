@@ -1,36 +1,32 @@
-# Essay Grading Evaluation Configuration
-# Evaluates how well models grade essays according to a rubric
+# Cheap pipeline smoke test: 5 synthetic essays, 2 budget models.
+# Verifies the JSON grader prompt + assertions end-to-end for pennies.
+#   npx promptfoo eval -o output/synthetic.json
+# The real evals live in configs/ (one per dataset) — see README-evals.md.
+description: "Synthetic smoke test (5 essays, cheap models)"
 
-# =============================================================================
-# PROVIDERS - Compare multiple models
-# =============================================================================
-providers:
-  # Multiple providers for comparing essay grading performance
-  - openai:gpt-5
-  - gemini:gemini-3-pro-preview
-  - anthropic:messages:claude-sonnet-4-5
-  # Add your API keys in environment variables or .env file
-
-# =============================================================================
-# PROMPTS
-# =============================================================================
 prompts:
   - file://prompts/essay_grader.txt
 
-# =============================================================================
-# TEST CASES
-# =============================================================================
-tests:
-  # Essay grading test cases (5 sample essays)
-  - file://test-inputs/essays.yaml
+providers:
+  - id: anthropic:messages:claude-haiku-4-5-20251001
+    config: { temperature: 0, max_tokens: 2048 }
+  - id: google:gemini-2.5-flash
+    config: { temperature: 0 }
 
-# =============================================================================
-# DEFAULT TEST OPTIONS & ASSERTIONS
-# =============================================================================
 defaultTest:
-  options:
-    temperature: 0.7
-    max_tokens: 1000
   assert:
-    # Essay grading specific evaluations
-    - file://evals/essay-grading.yaml
+    - type: javascript
+      value: file://evals/valid_json.js
+      metric: valid_json
+    - type: javascript
+      value: file://evals/exact_match.js
+      metric: exact_match
+    - type: javascript
+      value: file://evals/adjacent_match.js
+      metric: adjacent_match
+    - type: javascript
+      value: file://evals/traits_adjacent.js
+      metric: traits_adjacent
+
+tests:
+  - file://test-inputs/essays.yaml
