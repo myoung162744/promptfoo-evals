@@ -1,0 +1,58 @@
+# ASAP++ — essays with trait-level human scores (sets 1 & 2: persuasive).
+# Traits: content, organization, word_choice, sentence_fluency, conventions.
+# Run:    npx promptfoo eval -c configs/asap-essays.yaml -o output/asap-essays.json
+# Then:   .venv/bin/python scripts/analyze.py output/asap-essays.json
+description: "ASAP++ essay grading (trait scores)"
+
+prompts:
+  - file://../prompts/essay_grader.txt
+
+# Keep this provider list in sync across all four configs in this directory.
+providers:
+  - id: anthropic:messages:claude-opus-4-8
+    config: { temperature: 0, max_tokens: 2048 }
+  - id: anthropic:messages:claude-sonnet-4-6
+    config: { temperature: 0, max_tokens: 2048 }
+  - id: anthropic:messages:claude-haiku-4-5-20251001
+    config: { temperature: 0, max_tokens: 2048 }
+  # OpenAI disabled 2026-06-12: API key returned 429 billing_not_active.
+  # Re-enable once billing is active on the OpenAI account.
+  # - id: openai:gpt-5.1        # reasoning model: temperature unsupported, omitted
+  # - id: openai:gpt-5.1-mini
+  # Gemini 3 Pro disabled 2026-06-12: Google key is free-tier (limit 0 for
+  # gemini-3-pro). Re-enable once a paid Google AI Studio tier is active.
+  # - id: google:gemini-3-pro-preview
+  #   config: { temperature: 0 }
+  - id: google:gemini-2.5-flash
+    config: { temperature: 0 }
+
+defaultTest:
+  assert:
+    - type: javascript
+      value: file://../evals/valid_json.js
+      metric: valid_json
+    - type: javascript
+      value: file://../evals/exact_match.js
+      metric: exact_match
+    - type: javascript
+      value: file://../evals/adjacent_match.js
+      metric: adjacent_match
+    - type: javascript
+      value: file://../evals/traits_adjacent.js
+      metric: traits_adjacent
+    # Secondary, qualitative check with a pinned judge. Caveat: LLM judges
+    # tend to favor their own model family (self-preference bias) — keep this
+    # out of the headline ranking (which is QWK from scripts/analyze.py).
+    - type: llm-rubric
+      metric: feedback_quality
+      provider: google:gemini-2.5-flash  # judge: only free-tier model available now;
+      # swap to a held-out model (openai:gpt-5.1) once billing is active
+      value: |
+        Evaluate the grader's JSON output (its "evidence" and "feedback" fields):
+        1. The evidence cites specific content from the student's writing, not generic claims.
+        2. The evidence is consistent with the scores given.
+        3. The feedback is constructive, specific, and actionable for the student.
+        Fail if evidence/feedback are missing, generic boilerplate, or contradict the scores.
+
+tests:
+  - file://../test-inputs/generated/asap-pp.yaml

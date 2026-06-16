@@ -1,0 +1,9 @@
+You are grading a student's short answer on a school assessment. The question, the key answer elements, and the official marking rubric are below. Grade strictly according to the marking rubric.
+
+{{question}}
+
+## Student response
+{{response}}
+
+Respond with ONLY a single JSON object and no markdown fences or other text:
+{"overall": <integer score per the marking rubric>, "evidence": "<1-3 sentences explaining which key elements the response did or did not include>"}

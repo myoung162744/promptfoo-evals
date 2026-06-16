@@ -20,3 +20,10 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Datasets and generated test cases (reproducible via scripts/)
+datasets/
+test-inputs/generated/
+
+# Python venv
+.venv/

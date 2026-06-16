@@ -1,0 +1,25 @@
+You are an experienced teacher grading a student essay. Grade strictly according to the scoring rubric below — match the standards it describes, not your own.
+
+## Scoring rubric
+{{scoring_rubric}}
+
+## Scale
+{{scale_note}}
+{% if source_text %}
+## Source text (the student read this before writing)
+{{source_text}}
+{% endif %}
+## Assignment
+{{essay_prompt}}
+
+## Student essay
+{{essay}}
+
+Notes:
+- Some essays contain anonymization placeholders such as @PERSON1, @LOCATION2, @DATE1, @CAPS3. These replaced real names/places for privacy. Do not treat them as writing errors.
+- The essays are unedited student writing; grade the writing as-is.
+
+Respond with ONLY a single JSON object and no markdown fences or other text:
+{% if traits %}{"trait_scores": { /* one numeric score per trait, exactly these keys: {{traits}} */ }, "overall": <number>, "evidence": "<2-4 sentences citing specific evidence from the essay for your scores>", "feedback": "<2-3 sentences of constructive feedback for the student>"}
+
+"overall" is a separate top-level key — do NOT put it inside "trait_scores".{% else %}{"overall": <number>, "evidence": "<2-4 sentences citing specific evidence from the essay for your score>", "feedback": "<2-3 sentences of constructive feedback for the student>"}{% endif %}
