@@ -47,8 +47,8 @@ defaultTest:
     # headline ranking is QWK from scripts/analyze.py).
     - type: llm-rubric
       metric: feedback_quality
-      provider: google:gemini-2.5-flash  # judge: only free-tier model available now;
-      # swap to a held-out model (openai:gpt-5.1) once billing is active
+      provider: anthropic:messages:claude-haiku-4-5-20251001  # judge: free-tier Gemini
+      # rate-limited and OpenAI billing inactive; swap to held-out openai:gpt-5.1 later
       value: |
         Evaluate the grader's JSON output (its "evidence" and "feedback" fields):
         1. The evidence cites specific content from the student's writing, not generic claims.

@@ -22,12 +22,41 @@ def extract_json(text: str):
     if not isinstance(text, str):
         return None
     t = re.sub(r"```(json)?", "", text).strip()
-    s, e = t.find("{"), t.rfind("}")
-    if s == -1 or e <= s:
+    s = t.find("{")
+    if s == -1:
         return None
+    o = None
+    # Greedy first try; then fall back to the first brace-balanced object.
+    # Some models (notably Opus) emit a stray premature "}" — e.g.
+    # {... "evidence": "..."}, "feedback": "..."} — which breaks a naive
+    # first-{ .. last-} slice. Balanced scanning recovers the leading object,
+    # which still carries "overall" and "trait_scores" (all QWK needs).
     try:
-        o = json.loads(t[s:e + 1])
+        o = json.loads(t[s:t.rfind("}") + 1])
     except json.JSONDecodeError:
+        depth, in_str, esc = 0, False, False
+        for i in range(s, len(t)):
+            c = t[i]
+            if in_str:
+                if esc:
+                    esc = False
+                elif c == "\\":
+                    esc = True
+                elif c == '"':
+                    in_str = False
+            elif c == '"':
+                in_str = True
+            elif c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    try:
+                        o = json.loads(t[s:i + 1])
+                    except json.JSONDecodeError:
+                        o = None
+                    break
+    if o is None:
         return None
     # Tolerate "overall" nested inside trait_scores (mirrors evals/parse_output.js)
     if isinstance(o, dict) and not isinstance(o.get("overall"), (int, float)):

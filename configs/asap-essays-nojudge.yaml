@@ -1,9 +1,8 @@
-# PERSUADE 2.0 / ASAP 2.0 — source-based persuasive essays, holistic 1-6.
-# Limited to the two prompts whose source PDFs have a text layer
-# (electoral college, car-free cities); see README for expanding via OCR.
-# Run:    npx promptfoo eval -c configs/persuade.yaml -o output/persuade.json
-# Then:   .venv/bin/python scripts/analyze.py output/persuade.json
-description: "PERSUADE 2.0 holistic essay grading"
+# ASAP++ — essays with trait-level human scores (sets 1 & 2: persuasive).
+# Traits: content, organization, word_choice, sentence_fluency, conventions.
+# Run:    npx promptfoo eval -c configs/asap-essays.yaml -o output/asap-essays.json
+# Then:   .venv/bin/python scripts/analyze.py output/asap-essays.json
+description: "ASAP++ essay grading (trait scores)"
 
 prompts:
   - file://../prompts/essay_grader.txt
@@ -38,18 +37,9 @@ defaultTest:
     - type: javascript
       value: file://../evals/adjacent_match.js
       metric: adjacent_match
-    # Secondary, qualitative check with a pinned judge (self-preference caveat;
-    # headline ranking is QWK from scripts/analyze.py).
-    - type: llm-rubric
-      metric: feedback_quality
-      provider: anthropic:messages:claude-haiku-4-5-20251001  # judge: free-tier Gemini
-      # rate-limited and OpenAI billing inactive; swap to held-out openai:gpt-5.1 later
-      value: |
-        Evaluate the grader's JSON output (its "evidence" and "feedback" fields):
-        1. The evidence cites specific content from the student's writing, not generic claims.
-        2. The evidence is consistent with the scores given.
-        3. The feedback is constructive, specific, and actionable for the student.
-        Fail if evidence/feedback are missing, generic boilerplate, or contradict the scores.
+    - type: javascript
+      value: file://../evals/traits_adjacent.js
+      metric: traits_adjacent
 
 tests:
-  - file://../test-inputs/generated/persuade.yaml
+  - file://../test-inputs/generated/asap-pp.yaml
